@@ -1,0 +1,106 @@
+{
+    "ccd": "Ambiente - Desarrollo Flexible",
+    "version": "1.0",
+    "parametros": [
+      {
+        "clave": "dbhost",
+        "valor": "10.0.113.224"
+      },
+      {
+        "clave": "dbport",
+        "valor": "5432"
+      },
+      {
+        "clave": "dbuser",
+        "valor": "postgres"
+      },
+      {
+        "clave": "dbpwd",
+        "valor": "postgres"
+      },
+      {
+        "clave": "apisrv",
+        "valor": "https://10.0.113.224"
+      },
+      {
+        "clave": "rmqsrv",
+        "valor": "10.0.113.224"
+      },
+      {
+        "clave": "rmquser",
+        "valor": "user"
+      },
+      {
+        "clave": "rmqpwd",
+        "valor": "user"
+      },
+      {
+        "clave": "authuser",
+        "valor": "rmata"
+      },
+      {
+        "clave": "authpwd",
+        "valor": "rmata26"
+      },
+      {
+        "clave": "mdbsrv",
+        "valor": "10.0.113.230"
+      }
+    ],
+    "api_lista": [
+      {
+        "api": "CONFIGURACIONES",
+        "descr": "Lista de configuraciones de la UCM-CFE",
+        "url": ":3800/api/lista-configuraciones",
+        "tipo": "A"
+      },
+      {
+        "api": "DESPLIEGUE",
+        "descr": "Detalle de despliegue",
+        "url": ":3800/api/despliegue/",
+        "tipo": "B"
+      },
+      {
+        "api": "TOPOLOGIA",
+        "descr": "Detalle de topología",
+        "url": ":3800/api/topologia/",
+        "tipo": "B"
+      },
+      {
+        "api": "HISTORIAL",
+        "descr": "Historial de mediciones",
+        "url": ":3015/api/historia/mediciones?limite=100",
+        "tipo": "A"
+      },
+      {
+        "api": "VALORES",
+        "descr": "Valores actuales de la UCM",
+        "url": ":3014/fetch",
+        "tipo": "A"
+      },
+      {
+        "api": "PUNTOS",
+        "descr": "Puntos detallados y estados de la UCM",
+        "url": ":3013/api/puntos-ucm/",
+        "tipo": "A"
+      },
+      {
+        "api": "LICENCIAS",
+        "descr": "Licencias",
+        "url": ":3014/licencias/",
+        "tipo": "A"
+      },
+      {
+        "api": "LOGIN",
+        "descr": "Autorización por token",
+        "url": ":3022/auth/login",
+        "tipo": "C"
+      },
+      {
+        "api": "BITACORA",
+        "descr": "Exchange de RabbitMQ Bitacora",
+        "url": ":3020/bitacora",
+        "tipo": "C"
+      }
+    ]
+  }
