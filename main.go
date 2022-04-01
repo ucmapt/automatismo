@@ -1,7 +1,9 @@
 package main
 
+//
 // Versión 2.0 del Módulo del Automatismo y Procesador de Topología de la UCM-CFE (c) 2021 - 2022
-
+// Renombrado como Procesador Topológico
+//
 import (
 	"bytes"
 	"encoding/binary"
@@ -24,7 +26,7 @@ import (
 	"github.com/ucmapt/automatismo/models"
 )
 
-/// Manejo de máquina de estados
+// Manejo de máquina de estados
 const (
 	Cargando         fsm.StateType = "Cargando"
 	Bloqueado        fsm.StateType = "Bloqueado"
@@ -70,6 +72,8 @@ func (a *CargandoAction) Execute(evContext fsm.EventContext) fsm.EventType {
 	return NoHayConfiguracion
 }
 
+// Acciones al operar
+// No se redirreciona automáticamente, se responde con base en los eventos procesados en
 type OperandoAction struct{}
 
 func (a *OperandoAction) Execute(evContext fsm.EventContext) fsm.EventType {
@@ -178,6 +182,7 @@ var (
 )
 
 // Rutina general para manejo de mensajes de error
+// HAcer mas de este tipo de rutinas para incluir manejo de eventos....
 func manejaError(err error, msg string) {
 	if err != nil {
 		ihm.Problema(msg)
@@ -206,6 +211,7 @@ func conejoURL() string {
 	return url
 }
 
+// COLOCAR DESCRIPCIONES  ...........
 func actualizaCircuitos() {
 	var err error
 	grafo := graphs.NewGraph()
@@ -235,15 +241,18 @@ func actualizaCircuitos() {
 		}
 	}
 
+	// Agregar datos de transformadores AQUI o PREVIO al Análisis
+
 	fmt.Println("Comienza coloreo ....")
 	printSummary(bulk)
 	grafo.Colorize()
 
-	grafo.UpdateViews()
+	// PARTE URGENTE POR ATENDER  ....
 
+	grafo.UpdateViews()
 }
 
-// PRoceso principal de preparación de eventos
+// Proceso principal de preparación de eventos
 // TODO - Se estaba trabajndo en adecuarlo como un brocker con funciones más simples, eliminando variables globales
 // TODO - Incorporar funciones de configuración
 // TODO - Simplificar los llamados a APIs
@@ -258,7 +267,6 @@ func preparaEventos() {
 
 	ch, err := conn.Channel()
 	manejaError(err, "No se ha podido crear canal en RabbitMQ")
-	/// 2DO : Integrar esquema de configuracion en colas de Rabbit
 
 	defer ch.Close()
 	qFallas, err := ch.QueueDeclare(
@@ -379,7 +387,6 @@ func procesarMensaje(rmq *models.RmqBitacoraMensaje) bool {
 }
 
 // Procesamiento de solicitudes de paro de automatismo
-
 func procesoDetener() {
 	var l api.UcmLog
 	err := l.Iniciar("rmata", "rmata26") // Se usa esta combinación para usar ciertas APIs, verificar credenciales
@@ -402,6 +409,7 @@ func procesoDetener() {
 
 }
 
+// Procesamiento de evento de reinicio de procesos ....
 func procesoReinicio() {
 	var l api.UcmLog
 	err := l.Iniciar("rmata", "rmata26") // Se usa esta combinación para usar ciertas APIs, verificar credenciales

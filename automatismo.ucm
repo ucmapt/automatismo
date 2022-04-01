@@ -45,6 +45,18 @@
       {
         "clave": "mdbsrv",
         "valor": "10.0.113.230"
+      },
+      {
+        "clave": "geodbsrv",
+        "valor": "10.0.113.231"
+      },
+      {
+        "clave": "geodbuser",
+        "valor": "postgres"
+      },
+      {
+        "clave": "goedbpwd",
+        "valor": "postgres"
       }
     ],
     "api_lista": [
@@ -88,6 +100,12 @@
         "api": "LICENCIAS",
         "descr": "Licencias",
         "url": ":3014/licencias/",
+        "tipo": "A"
+      },
+      {
+        "api": "MINUTAL_ANTERIOR",
+        "descr": "Adquirir minutal anterior",
+        "url": ":3015/minutal-anterior/mediciones?",
         "tipo": "A"
       },
       {

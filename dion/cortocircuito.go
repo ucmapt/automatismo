@@ -2,123 +2,116 @@ package dion
 
 import (
 	"fmt"
-
-	"github.com/ucmapt/automatismo/common/graphs"
-	"github.com/ucmapt/automatismo/models"
+	"strings"
 
 	"gonum.org/v1/gonum/mat"
 )
 
-var (
-	Gbus mat.VecDense
-	Bbus mat.VecDense
-)
-
-type ybus struct {
-}
-
-
-func admitancia(g *graphs.UniGraph, a string) (mat.VecDense, mat.VecDense) {
-	var G, B mat.VecDense
-	G = *mat.NewVecDense(100, make([]float64, 0))
-	B = *mat.NewVecDense(100, make([]float64, 0))
-	return G,B
-
-}
-
-func clasificacionCircuito(g *graphs.UniGraph, a string) error{
-	// obtener incidencias 
-	// OJO en las rutinas de MATLAB se calculan a partir de dos archivos csv
-	// tomar como base el grafo y el alimentador
-
-	u := mat.NewVecDense(3, []float64{1, 2, 3})
-	e := u.AtVec(1)
-	if e != 0 {
-		return fmt.Errorf("No manejado")
+// Reemplaza la función de MATLAB para crear matrices bidimensionales con ceros
+func zeros(x, y int) *mat.Dense {
+	z := make([]float64, x*y)
+	for i := range z {
+		z[i] = 0
 	}
-	return nil 
+	aux := mat.NewDense(x, y, z)
+	return aux
 }
 
-// Para el cálculo de las corrientes de cortocircuito en cada nodo del circuito, se requirie estimar 
-// los valores complejos de corriente de cortocircuito en cada nodo del circuito, aplicando un cociente complejo
-// sobre los datos del flujo de cargas  
-func cocienteComplejo(a, b complex128) complex128{
-	den := real(b) *real (b) + imag(b) * imag(b)
-	return complex(real(a)*real(b)+imag(a)*imag(b)/den,imag(a)*real(b)-real(a)*imag(b)/den)
+func Admitancia(r, x mat.Dense, n int) (*mat.Dense, *mat.Dense) {
+	b := zeros(n, 1)
+	g := zeros(n, 1)
+
+	for k := 0; k < n; k++ {
+		d := r.At(k, 0)*r.At(k, 0) + x.At(k, 0)*x.At(k, 0)
+		g.Set(k, 0, r.At(k, 0)/d)
+		b.Set(k, 0, -1*x.At(k, 0)/d)
+	}
+	return g, b
 }
 
-// Manejo de
-func formacionYbusZbus(){
-
+//Estructuras auxiliares para pruebas preliminares de ArregloIncidencia, se sustituyen al manejar GrafoVisor
+type AuxIncidencias struct {
+	Nodos []NodoIncidencias
 }
 
-// Manejo de arrgelo de incidencias a partir de datos del grafo
-func arregloIncidencia(n1, n2 graphs.Node) []int {
-
-	// en el algoritmo original, se reconstruía el archivo de incidencias.csv
-	// aquí se contruye una estructura dinámica
-	return nil 
+type NodoIncidencias struct {
+	NodoId      int
+	Adyacencias []int
 }
 
-// CASO DE USO: Cálculo de polígono de falla
-// FEATURE: El módulo de automatismo y procesador de topologías podrá calcular las posiciones más probables 
-// del origen de una falla franca con base en un análisis a partir de la corriente de corto circuito reportada durante el suceso.
-// R017 - R021
-func AnalizarCortoCircuito(b graphs.BulkGraph, g *graphs.UniGraph, cve string, iff float64) error {
-	// Resolver punto de falla
-	// Buscar el dispositivo en el grafo para determinar el circuito a usar
-	// Ubicar falla
-	var swd *models.SwLine
-	swd = nil
-	for i := 0; i < len(b.SwLines); i++ {
-		if b.SwLines[i].Switch == cve {
-			swd = b.SwLines[i]
+// FUNCION   ArregloIncidencia
+// PARAMETRO n1 - Matriz columna con los indices de nodo registrados al recuperar de la BD
+// PARAMETRO n2 - Matriz columna con los indices de nodo registrados al recuperar de la BD
+// NOTA      Se asumen n1 y n2 como matrices 2d tipo columna con múltiples filas y una sola columna
+// NOTA      Solo para pruebas preliminares, se sustituye por CargaGrafos
+func ArregloIncidencia(n1, n2 mat.Dense) (AuxIncidencias, error) {
+	//formar una lista de nodos que incluya los n1 y n2 sin repetir
+
+	ns := []int{}
+	ns1 := []int{}
+	ns2 := []int{}
+
+	rows, cols := n1.Dims()
+	if cols != 1 {
+		e := fmt.Errorf("Lista (nodo1) no cumple con formato")
+		return AuxIncidencias{}, e
+	}
+
+	for i := 0; i < rows; i++ {
+		ns = append(ns, int(n1.At(i, 0)))
+	}
+	ns1 = append(ns1, ns...)
+
+	rows, cols = n2.Dims()
+	if cols != 1 {
+		e := fmt.Errorf("Lista (nodo2) no cumple con formato")
+		return AuxIncidencias{}, e
+	}
+
+	for i := 0; i < rows; i++ {
+		aux := int(n2.At(i, 0))
+		if !contiene(ns, aux) {
+			ns = append(ns, aux)
+		}
+		ns2= append(ns2, aux)
+	}
+
+	t := len(ns)
+	for i:= 0;i<t;i++ {
+		adjs := []int{}
+
+		if !contiene(adjs, ns[j]){
+			
 		}
 	}
-	aux := *swd.Circuito
-
-	// Limitar datos a usar (circuito, nodos, líneas)
-	bii := g.GetBii(aux, aux)
-	gii := g.GetGii(aux, aux)
-
-	// Construir estructuras auxiliares correspondiente
-	// Levantar evento “Calculando perímetro de falla”
-	if bii.Status {
-		return fmt.Errorf("Probema al gestionar cálculos ")
 	}
 
-	if gii.Status {
-		return fmt.Errorf("Probema al gestionar cálculos ")
-	}
-	// Aplicar clasificación por circuito Ybus = Gbus - jBbus
-	clasificacionCircuito(g, aux)
-
-	// Formar Ybus y calcular Zbus conforme a grafo a actualizar
-
-	// Proceso iterativo para resolver por Newton Raphson
-	// Aplicar corrección voltaje nodo oscilatorio
-	// Cálculo de Corto Circuito
-	// Reflejar resultados
-
-/*
-	H02_formacion_Ybus_calculo_Zbus_datos_iniciales
-	k_it = 0;
-	norm_b = 100;
-	while  k_it < 6 & norm_b > 10
-		k_it = k_it + 1;
-		H04_Newton_Raphson_proceso_iterativo
-	end
-	%% 
-	
-	F05_correccion_voltaje_nodo_oscilatorio_y_calculo_de_CC
-	H06_grafo_vs_distribucion_CC
-*/
-
-	return nil
+	return AuxIncidencias{}, nil
 }
 
+// Función auxiliar
+func contiene(l []int, valor int) bool {
+	for _, e := range l {
+		if e == valor {
+			return true
+		}
+	}
+	return false
+}
 
-
-
-
-
+// Solo para pruebas preliminares, eliminar en versión final
+func ShowMatrix(x *mat.Dense) string {
+	var sb strings.Builder
+	r, c := x.Dims()
+	for i := 0; i < r; i++ {
+		sb.WriteString("[")
+		for j := 0; j < c; j++ {
+			if j != 0 {
+				sb.WriteString(", ")
+			}
+			sb.WriteString(fmt.Sprintf("%f", x.At(i, j)))
+		}
+		sb.WriteString(fmt.Sprintf("]\n"))
+	}
+	return sb.String()
+}

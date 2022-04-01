@@ -651,7 +651,7 @@ func (a *ValoresActuales) CargaArchivo(archivo string) {
 	if err != nil {
 		fmt.Println(err)
 	}
-	//fmt.Println("Archivo de configuraci�n abierto sin complicacicones")
+	//fmt.Println("Archivo de configuración abierto sin complicacicones")
 	defer jsonFile.Close()
 
 	byteValue, _ := ioutil.ReadAll(jsonFile)

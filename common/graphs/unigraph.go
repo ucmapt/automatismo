@@ -217,7 +217,7 @@ func (g *UniGraph) AddLineFull(key, from, to string, sw1, sw2, status bool, x0, 
 		g.adjacency[g.getNodeId(from)][g.getNodeId(to)] = true
 		g.adjacency[g.getNodeId(to)][g.getNodeId(from)] = true
 		lineAux := Line{
-			Key:      "",
+			Key:      key,
 			From:     from,
 			To:       to,
 			Sw1:      sw1,

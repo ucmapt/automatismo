@@ -19,3 +19,19 @@ func NewBulkGraph() *BulkGraph {
 		SwLines: []*models.SwLine{},
 	}
 }
+
+type BulkVisor struct {
+	Nodes   []*models.VisorTopology
+	Lines   []*models.OldExtendedLine
+	Feeders []*models.OldTopology
+	SwLines []*models.SwLine
+}
+
+func NewBulkVisor() *BulkVisor {
+	return &BulkVisor{
+		Nodes:   []*models.VisorTopology{},
+		Lines:   []*models.OldExtendedLine{},
+		Feeders: []*models.OldTopology{},
+		SwLines: []*models.SwLine{},
+	}
+}
