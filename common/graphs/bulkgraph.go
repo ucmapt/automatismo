@@ -21,7 +21,7 @@ func NewBulkGraph() *BulkGraph {
 }
 
 type BulkVisor struct {
-	Nodes   []*models.VisorTopology
+	Nodes   []*models.VisorTopologia
 	Lines   []*models.OldExtendedLine
 	Feeders []*models.OldTopology
 	SwLines []*models.SwLine
@@ -29,7 +29,7 @@ type BulkVisor struct {
 
 func NewBulkVisor() *BulkVisor {
 	return &BulkVisor{
-		Nodes:   []*models.VisorTopology{},
+		Nodes:   []*models.VisorTopologia{},
 		Lines:   []*models.OldExtendedLine{},
 		Feeders: []*models.OldTopology{},
 		SwLines: []*models.SwLine{},

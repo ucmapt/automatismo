@@ -18,51 +18,51 @@ func NewVisorTopologyRepo(db *gorm.DB) *VisorTopologyRepo {
 	return &VisorTopologyRepo{db: db}
 }
 
-func (e *VisorTopologyRepo) GetById(id string) (*models.VisorTopology, error) {
+func (e *VisorTopologyRepo) GetById(id string) (*models.VisorTopologia, error) {
 
-	single := &models.VisorTopology{}
+	single := &models.VisorTopologia{}
 
-	err := e.db.Where(&models.VisorTopology{Id: id}).First(single).Error
+	err := e.db.Where(&models.VisorTopologia{ID: id}).First(single).Error
 
 	return single, err
 }
 
-func (e *VisorTopologyRepo) GetAll() ([]*models.VisorTopology, error) {
+func (e *VisorTopologyRepo) GetAll() ([]*models.VisorTopologia, error) {
 
-	group := []*models.VisorTopology{}
+	group := []*models.VisorTopologia{}
 
 	err := e.db.Find(&group).Error
 
 	return group, err
 }
 
-func (e *VisorTopologyRepo) GetByNombre(nombre string) (*models.VisorTopology, error) {
+func (e *VisorTopologyRepo) GetByNombre(nombre string) (*models.VisorTopologia, error) {
 
-	single := &models.VisorTopology{}
+	single := &models.VisorTopologia{}
 
-	err := e.db.Where(&models.VisorTopology{Nombre: &nombre}).First(single).Error
+	err := e.db.Where(&models.VisorTopologia{Nombre: nombre}).First(single).Error
 
 	return single, err
 }
 
-func (e *VisorTopologyRepo) GetFeeders() ([]*models.VisorTopology, error) {
-	group := []*models.VisorTopology{}
+func (e *VisorTopologyRepo) GetFeeders() ([]*models.VisorTopologia, error) {
+	group := []*models.VisorTopologia{}
 
 	err := e.db.Where("type = 'alimentador'").Find(&group).Error
 
 	return group, err
 }
 
-func (e *VisorTopologyRepo) GetNodes() ([]*models.VisorTopology, error) {
-	group := []*models.VisorTopology{}
+func (e *VisorTopologyRepo) GetNodes() ([]*models.VisorTopologia, error) {
+	group := []*models.VisorTopologia{}
 
 	err := e.db.Where("type = 'nodo'").Find(&group).Error
 
 	return group, err
 }
 
-func (e *VisorTopologyRepo) GetLines() ([]*models.VisorTopology, error) {
-	group := []*models.VisorTopology{}
+func (e *VisorTopologyRepo) GetLines() ([]*models.VisorTopologia, error) {
+	group := []*models.VisorTopologia{}
 
 	err := e.db.Where("type IN ('linea', 'linea_asimetrica')").Find(&group).Error
 
