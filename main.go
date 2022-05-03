@@ -76,7 +76,7 @@ func (a *CargandoAction) Execute(evContext fsm.EventContext) fsm.EventType {
 	var err error
 	if cfgA.Cargar("automatismo.ucm") {
 		// Se intenta cargar datos con la configuración recuperada
-		err = initDB()
+		err = initDB(cfgA)
 		if err != nil {
 			log.Fatalf("Error al conectar datos: %s", err)
 			lanzarEvento("PROBLEMA AL CARGAR CONFIGURACIONES", "AYPT reporta problemas al cargar", "ERROR")

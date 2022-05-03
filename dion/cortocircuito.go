@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"gonum.org/v1/gonum/mat"
+	
 )
 
 // FUNCION   zeros
@@ -165,3 +166,67 @@ func ShowMatrix(x *mat.Dense) string {
 	}
 	return sb.String()
 }
+
+// AnalisisCortoCircuito recibe Grafo, ICC y elemento qque lo siente
+func AnalisisCortoCircuito(g Grafo, icc float64, elem string) (models.FailResult, models.FailZone, error) {
+ return nil, nil, nil 
+}
+//
+
+/*
+DT = [];
+for num_foto = 1:10
+
+clearvars -except num_foto DT
+close all
+clc
+% H00_Calculo_de_CC_y_flujo_de_cargas_circuitos_CAMARGO
+T0=clock;
+
+
+% ================D A T O S  D E  E N T R A D A    ======================
+num_circ = num_foto;   % NUMERO DE CIRCUITO
+Iff = 2250; %2057;     % CORRIENTE DE FALLA
+% =======================================================================
+
+
+
+H01_Clasificacion_por_circuito
+H02_formacion_Ybus_calculo_Zbus_datos_iniciales
+%%
+k_it = 0;
+norm_b = 100;
+while  k_it < 6 & norm_b > 10
+    k_it = k_it + 1;
+    H04_Newton_Raphson_proceso_iterativo
+end
+%% 
+
+F05_correccion_voltaje_nodo_oscilatorio_y_calculo_de_CC
+
+Tf=clock;
+dT = Tf - T0;
+
+if dT(6) < 0
+    dT(6) = dT(6)+60;
+    dT(5) = dT(5)-1;
+end
+
+if dT(5) < 0
+    dT(5) = dT(5)+60;
+    dT(4) = dT(4)-1;
+end
+
+if dT(4) < 0
+    dT(4) = dT(4)+60;
+    dT(3) = dT(3)-1;
+end
+fprintf('Tiempo total de ejecucion = %2.0f:%2.0f:%2.0f\n', dT(4:6))
+DT = [DT;dT];
+H06_grafo_vs_distribucion_CC
+
+feval('print',['localizacion_cc_circuito_',num2str(num_foto),'_Iff2250.jpg'],'-djpeg')
+
+end
+*/
+

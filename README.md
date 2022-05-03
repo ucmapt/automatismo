@@ -21,7 +21,7 @@
  
 - Cualquier problema en la carga, conduce al estado SinConfiguracion
 
-- Si termina exitosamente la carga, se procede a cambiar a estado Operando
+- Si termina exitosamente la carga, se procede a cambiar a estado *Operando*
  
 
 ## Estado OPERANDO 
@@ -37,54 +37,48 @@
   - Cambio de estado de los elementos de conmutación de la UCM
   - Cambios en registro de licencias
   - Se superó el tiempo de espera para recibir respuesta del operador
- 
- 
- 
-  Al recibir mensaje de RabbitMQ iniciando Atencion a Falla Franca
- 
-  ### INICIA ATENCIÓN A FALLA FRANCA
- 
-  Recolectar información de la falla
+
+- Al recibir mensaje de RabbitMQ iniciando _*Atencion a Falla Franca*_ se procede a ATENCIÓN A FALLA FRANCA
+- Al recibir mensaje de RabbitMQ iniciando _*Respuesta del operador*_ se procede a RESPUESTA DEL OPERADOR
+  
+  ### ATENCIÓN A FALLA FRANCA
+  - Recolectar información de la falla
   1) Elemento que sintió la falla - incluido en el mensaje, completar con SQL a las tablas del elemento eléctrico en la UCM
   2) Puntos para Estado, Corrientes, Voltajes y Potencias del elemento registrados en la UCM
-  2) Corriente de falla - incluido en el mensaje
-  3) Momento de la falla - incluido en el mensaje
+  3) Corriente de falla - incluido en el mensaje
+  4) Momento de la falla - incluido en el mensaje
  
-  Descartar fallas caducadas, es decir que sucedieron hace más de 10 minutos
+  - Descartar fallas caducadas, es decir que sucedieron hace más de 10 minutos
  
-  Completar contexto de la falla:
+  - Completar contexto de la falla:
+  1) Reconstruir grafo general
+   - Cargar información topológica desde BD (Podría trabajarse desde REDIS, de momento se vuelve a cargar desde POSTGRES)
+   - Aplicando la API correspondiente, completar con información de estado de los elementos de los circuitos
+   - Actualizar grafo general
  
-  A) Reconstruir grafo general
-  - Cargar información topológica desde BD (Podría trabajarse desde REDIS, de momento se vuelve a cargar desde POSTGRES)
-  - Aplicando la API correspondiente, completar con información de estado de los elementos de los circuitos
-  - Actualizar grafo general
+  2) Extraer subgrafo que contenga el elemento que sintió la falla
  
-  B) Extraer subgrafo que contenga el elemento que sintió la falla
+  3) Obtener parámetros eléctricos de la ventana de análisis, incluyendo voltajes ABC, corrientes ABC y potencias efectivas
+   - Obtener parámetros eléctricos de T-2 (2 minutos previos a la falla aproximadamente)
+   - Obtener parámetros eléctricos de T-0 (reciente)
  
-  C) Obtener parámetros eléctricos de la ventana de análisis, incluyendo voltajes ABC, corrientes ABC y potencias efectivas
-  - Obtener parámetros eléctricos de T-2 (2 minutos previos a la falla aproximadamente)
-  - Obtener parámetros eléctricos de T-0 (reciente)
+  - Descartar información nula o caduca, registrada hace más de 10 minutos
  
-  Descartar información nula o caduca, registrada hace más de 10 minutos
+  - Dependiendo que información se obtuvo, calcular el impacto de la falla
+   - Si se tienen potencias, calcular como la resta del dato anterior y el más reciente
+   - Si se tienen corrientes, calcular como la resta del dato RTS anterior y el RTS más reciente
+   - Sin datos adecuados, no se calcula el impacto, pero se registra como "imposible de estimar"
  
-  Dependiendo que información se obtuvo, calcular el impacto de la falla
-  - Si se tienen potencias, calcular como la resta del dato anterior y el más reciente
-  - Si se tienen corrientes, calcular como la resta del dato RTS anterior y el RTS más reciente
-  - Sin datos adecuados, no se calcula el impacto, pero se registra como "imposible de estimar"
+  - Obtener listado de elementos desconectados tras la falla
  
-  Obtener listado de elementos desconectados tras la falla
+  - Refrescar mapa a través de SQL, actualizando circuito y estado en los elementos
+  - A través de API, mostrar mensaje al operador, incluir impacto de la falla
  
-  Refrescar mapa a través de SQL, actualizando circuito y estado en los elementos
-  A través de API, mostrar mensaje al operador, incluir impacto de la falla
+  - Registrar evento de falla franca
+  - Registrar nuevo proceso de atención a falla en curso
  
-  Registrar evento de falla franca
-  Registrar nuevo proceso de atención a falla en curso
- 
-  TERMINA ATENCIÓN A FALLA FRANCA
- 
- 
- 
-  Al recibir mensaje de RabbitMQ iniciando Respuesta del operador
+  _TERMINA ATENCIÓN A FALLA FRANCA_
+  
  
  ### INICIA RESPUESTA DEL OPERADOR
  

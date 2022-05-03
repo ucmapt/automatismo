@@ -18,3 +18,5 @@ type FailZone struct {
 	// Nodos
 	// Lineas
 }
+
+type FailResult int
