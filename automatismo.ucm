@@ -3,20 +3,64 @@
     "version": "1.0",
     "parametros": [
       {
-        "clave": "dbhost",
+        "clave": "ucmdbsrv",
         "valor": "10.0.113.224"
       },
       {
-        "clave": "dbport",
+        "clave": "ucmdbport",
         "valor": "5432"
       },
       {
-        "clave": "dbuser",
+        "clave": "ucmdbuser",
+        "valor": "ucmfs"
+      },
+      {
+        "clave": "ucmdbpwd",
+        "valor": "ucmfs"
+      },
+      {
+        "clave": "ucmdbname",
+        "valor": "p_ucm_cfe"
+      },
+      {
+        "clave": "geodbsrv",
+        "valor": "10.0.113.231"
+      },
+      {
+        "clave": "geodbport",
+        "valor": "5432"
+      },
+      {
+        "clave": "geodbuser",
         "valor": "postgres"
       },
       {
-        "clave": "dbpwd",
+        "clave": "geodbpwd",
         "valor": "postgres"
+      },
+      {
+        "clave": "geodbname",
+        "valor": "UCM_Views"
+      },
+      {
+        "clave": "aptdbsrv",
+        "valor": "10.0.113.224"
+      },
+      {
+        "clave": "aptdbport",
+        "valor": "5432"
+      },
+      {
+        "clave": "aptdbuser",
+        "valor": "ucmfs"
+      },
+      {
+        "clave": "aptdbpwd",
+        "valor": "ucmfs"
+      },
+      {
+        "clave": "aptdbname",
+        "valor": "p_ucm_cfe"
       },
       {
         "clave": "apisrv",
@@ -45,18 +89,6 @@
       {
         "clave": "mdbsrv",
         "valor": "10.0.113.230"
-      },
-      {
-        "clave": "geodbsrv",
-        "valor": "10.0.113.231"
-      },
-      {
-        "clave": "geodbuser",
-        "valor": "postgres"
-      },
-      {
-        "clave": "goedbpwd",
-        "valor": "postgres"
       }
     ],
     "api_lista": [

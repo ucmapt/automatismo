@@ -54,10 +54,3 @@ func (e *UcmEventRegRepo) InsertEventFromtext(descripcion string, detalle string
 	}
 	return err
 }
-
-
-/*
-func unixtime() string{
-	return fmt.Sprint(time.Now().Local().UnixNano()/1000000)
-} 
-*/
