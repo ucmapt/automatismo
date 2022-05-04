@@ -1,4 +1,6 @@
 # **Procesador Topológico de la UCM-CFE** #
+Esta aplicación está basada en una máquina de estados finitos.
+![diagrama](/docs/Diagrama.png)
 ## Estado CARGANDO ##
 - Se lee archivo de configuración
 - Se prueba conectar a las fuentes de datos
@@ -7,7 +9,7 @@
   > **FALTA** - Como trabajo pendiente, está subir la información a REDIS para acelerar los refrescos de información
 
 - Cargar estados de los elementos de conmutación involucrados (224)
-  > **NOTA** - Debido a problemas de consistencia de datos, provisionalemente se está asociando la información basado em una tabla que contiene los puntos por señal de cada elemento, se requiere adecuar esto, mapeando los puntos correspondientes sin este registro.
+  > **NOTA** - Debido a problemas de consistencia de datos, provisionalemente se está asociando la información basado en una tabla que contiene los puntos por señal de cada elemento, se requiere adecuar esto, mapeando los puntos correspondientes sin este registro.
 
   > **NOTA** - Raúl tiene APIs que pueden brindar alternativas a esta situación y evitar tener duplicidad de información y configuraciones.
 
