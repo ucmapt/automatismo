@@ -21,6 +21,7 @@ import (
 	"github.com/ucmapt/automatismo/common/fsm"
 	"github.com/ucmapt/automatismo/common/graphs"
 	"github.com/ucmapt/automatismo/config"
+	"github.com/ucmapt/automatismo/data/postgres/configapt"
 	"github.com/ucmapt/automatismo/data/postgres/motorapt"
 	"github.com/ucmapt/automatismo/ihm"
 	"github.com/ucmapt/automatismo/models"
@@ -46,24 +47,14 @@ const (
 type CargandoAction struct{}
 
 func (a *CargandoAction) Execute(evContext fsm.EventContext) fsm.EventType {
-/* ESTADO CARGANDO
+/* ## Estado CARGANDO ##
 - Se lee archivo de configuración
 - Se prueba conectar a las fuentes de datos
-- Se valida el estado del módulo, si está deactivado, se procede a cambiar a estado **FueraLinea**
+- Se valida el estado del módulo, si está desactivado, se procede a cambiar a estado **FueraLinea**
 - Se carga el grafo con la información geográfica de la BD (231)
-  > **FALTA** - Como trabajo pendiente, está subir la información a REDIS para acelerar los refrescos de información
-
 - Cargar estados de los elementos de conmutación involucrados (224)
-  > **NOTA** - Debido a problemas de consistencia de datos, provisionalemente se está asociando la información basado em una tabla que contiene los puntos por señal de cada elemento, se requiere adecuar esto, mapeando los puntos correspondientes sin este registro.
-
-  > **NOTA** - Raúl tiene APIs que pueden brindar alternativas a esta situación y evitar tener duplicidad de información y configuraciones.
-
-  > **FALTA** - Completar el manejo de pseudopuntos, pero básicamente se incorpora el mismo concepto, un elemento de conmutación cuyo estado se regista en la UCM y afecta un nodo o una línea.
- 
 - Se actualiza el grafo, aplicando algoritmos de coloreo del grafo
 - Refrescar mapa a través de SQL, actualizando circuito y estado en los elementos
-> **FALTA** - Incluir el estado del módulo de Procesador Topológico en la IHM del Mapa
- 
 - Cualquier problema en la carga, conduce al estado **SinConfiguracion**
 - Si termina exitosamente la carga, se procede a cambiar a estado **Operando**
 */
@@ -78,6 +69,18 @@ func (a *CargandoAction) Execute(evContext fsm.EventContext) fsm.EventType {
 			lanzarEvento("PROBLEMA AL CARGAR CONFIGURACIONES", "AYPT reporta problemas al cargar", "ERROR")
 			return NoHayConfiguracion // Reporta un estado SinConfiguracion
 		}
+		// Validar estado del módulo 
+		cfgG, err := obtenConfiguracion()
+		if err != nil {
+			log.Fatalf("Error al recuperar estado: %s", err)
+			lanzarEvento("PROBLEMA AL CARGAR CONFIGURACIONES", "AYPT reporta problemas al cargar", "ERROR")
+			return NoHayConfiguracion // Reporta un estado SinConfiguracion
+		} 
+		if !(*cfgG.EstadoGeneral){ //Desactivado		
+			ihm.Suceso("Configuración recuperada, módulo desactivado")
+			lanzarEvento("CONFIGURACION CARGADA", "AYPT termina carga de configuraciones", "AVISO")
+			return SeDesactivaApt // Reporta un estado FueraLinea
+		}
 		// Se intenta realizar la carga inicial de los datos georreferenciados con la configuración recuperada
 		bulk, err = recuperarInformacionGeo(cfgA)
 		if err != nil {
@@ -85,6 +88,7 @@ func (a *CargandoAction) Execute(evContext fsm.EventContext) fsm.EventType {
 			lanzarEvento("PROBLEMA AL CARGAR CONFIGURACIONES", "AYPT reporta problemas al cargar", "ERROR")
 			return NoHayConfiguracion // Reporta un estado SinConfiguracion
 		}
+		actualizaCircuitos()
 
 		ihm.Suceso("Configuración cargada")
 		lanzarEvento("CONFIGURACION CARGADA", "AYPT termina carga de configuraciones", "AVISO")
@@ -98,18 +102,27 @@ func (a *CargandoAction) Execute(evContext fsm.EventContext) fsm.EventType {
 type OperandoAction struct{}
 
 func (a *OperandoAction) Execute(evContext fsm.EventContext) fsm.EventType {
+/*## Estado OPERANDO ##
 
-	// Preparando eventos gestionados a través de RabbitMQ
-	// - Inicio de Atencion a falla franca
-	// - Respuesta del Operador ante atenciones
-	// - Solicitud de Suspención de procesos desde el editor topológico
-	// - Solicitud de Reactivación de procesos tras actualización de datos topológicos
-	//
-	// Otros eventos a monitorear
-	// - Cambios en los catálogos de la UCM
-	// - Cambios en la configuración del módulo
-	// - Cambio de estado de los elementos de conmutación de la UCM
-	// - Se superó el tiempo de espera para recibir respuesta del operador
+- Preparar recepción de mensajes de RABBITMQ
+  - Inicio de Atencion a falla franca
+  - Respuesta del Operador ante atenciones
+  - Solicitud de Suspensión de procesos desde el editor topológico
+
+- Otros eventos a monitorear
+  - Cambios en la configuración del módulo
+  - Cambios en los catálogos de la UCM 
+  - Cambio de estado de los elementos de conmutación de la UCM
+  - Cambios en registro de licencias
+  - Se superó el tiempo de espera para recibir respuesta del operador
+
+
+- Al recibir mensaje de RabbitMQ iniciando _*Atencion a Falla Franca*_ se procede a **Atención a Falla Franca**.
+- Al recibir mensaje de RabbitMQ iniciando _*Respuesta del Operador*_ se procede a **Respuesta del Operador**
+- Al recibir mensaje de RabbitMQ iniciando _*Solicitud de Suspensión*_ de procesos desde el editor topológico, se procede a **Suspensión de procesos**
+- Al detectar cambios en la configuración del módulo, se procede a **Analizar nueva configuración**
+- Al detectar cambios en los catálogos de la UCM, cambio de estado de los elementos de conmutación de la UCM o cambios en registro de licencias, se procede a **Refrescar información topológica**	
+	*/
 
 	ihm.Letrero("Automatismo en operación, esperando eventos ...")
 
@@ -184,6 +197,7 @@ func (a *OperandoAction) Execute(evContext fsm.EventContext) fsm.EventType {
 	vuelta := make(chan bool)
 
 	go func() {
+
 		// Procesamiento de atenciones a falla franca
 		for d := range messageFallasChannel {
 			buf := bytes.NewReader(d.Body)
@@ -196,7 +210,7 @@ func (a *OperandoAction) Execute(evContext fsm.EventContext) fsm.EventType {
 			}
 		}
 
-		// Procesamiento de
+		// Procesamiento de mensajes de editopo
 		for d := range messageEditopoChannel {
 			buf := bytes.NewReader(d.Body)
 			rmqBitacora := &models.RmqBitacoraMensaje{}
@@ -379,7 +393,6 @@ func actualizaCircuitos() {
 	}
 
 	for _, l := range bulk.Lines {
-		//err = grafo.AddLine(*l.Node1, *l.Node2)
 		err = grafo.AddLineFull(*l.Name, *l.Node1, *l.Node2, l.Sw1, l.Sw2, true, l.X0, l.X1, l.C0, l.C1, l.R0, l.R1)
 		if err != nil {
 			fmt.Printf("Error al manejar lineas: %s\n", err)
@@ -390,7 +403,7 @@ func actualizaCircuitos() {
 	printSummary(bulk)
 	grafo.Colorize()
 
-	// PARTE URGENTE POR ATENDER  ....
+	// PARTE URGENTE POR ATENDER UNIFICAR GRAFO ....
 
 	grafo.UpdateViews()
 }
@@ -483,6 +496,11 @@ func procesarFalla() {
 func lanzarEvento(descripcion string, detalle string, tipo string) error {
 	repo := motorapt.NewUcmEventRegRepo(dbApt)
 	return repo.InsertEventFromTexts(descripcion, detalle, "AYPT", tipo)
+}
+
+func obtenConfiguracion()(*models.AptSetUp, error){
+	repo := configapt.NewAptSetUpRepo(dbUcm)
+	return repo.GetFirst()
 }
 
 const executableID = "MOTORAPT"

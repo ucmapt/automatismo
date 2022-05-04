@@ -6,7 +6,9 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
+// Adecuar ambiente a nuevo esquma
 type Ambiente struct {
+
 }
 
 // Rutina auxiliar para extraer el parámetro p del objeto de recolecta la configuración u
