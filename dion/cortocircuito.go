@@ -4,8 +4,9 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/ucmapt/automatismo/common/graphs"
+	"github.com/ucmapt/automatismo/models"
 	"gonum.org/v1/gonum/mat"
-	
 )
 
 // FUNCION   zeros
@@ -51,12 +52,12 @@ type NodoIncidencias struct {
 	Adyacencias []int
 }
 
-// FUNCION   ArregloIncidencia
+// FUNCION   arregloIncidencia
 // PARAMETRO n1 - Matriz columna con los indices de nodo registrados al recuperar de la BD
 // PARAMETRO n2 - Matriz columna con los indices de nodo registrados al recuperar de la BD
 // RETORNO   AuxInidencias objeto conteniendo los nodos con sus índices de incidencia
 // RETORNO   error objeto de error
-func ArregloIncidencia(n1, n2 mat.Dense) (AuxIncidencias, error) {
+func arregloIncidencia(n1, n2 mat.Dense) (AuxIncidencias, error) {
 	//formar una lista de nodos que incluya los n1 y n2 sin repetir
 	ai := AuxIncidencias{
 		Nodos: []NodoIncidencias{},
@@ -143,10 +144,9 @@ func contiene(l []int, valor int) bool {
 	return false
 }
 
-func extraeMatrizBanda(){
-	
-}
+func extraeMatrizBanda() {
 
+}
 
 // FUNCION   ShowMatrix
 // PARAMETRO x - Matriz de flotantes
@@ -167,27 +167,51 @@ func ShowMatrix(x *mat.Dense) string {
 	return sb.String()
 }
 
-// AnalisisCortoCircuito recibe Grafo, ICC y elemento qque lo siente
-func AnalisisCortoCircuito(g Grafo, icc float64, elem string) (models.FailResult, models.FailZone, error) {
- return nil, nil, nil 
+// Lectura y acondicionamiento inicial de datos
+// La versión del Dr. Dionisio partía de recuperar los circuitos en formato matricial,
+// aquí se acopla desde un grafo que representa un circuito dinámico extraido
+
+// num_linea,nom_linea,num_circ,longitud,r1,x1,r0,x0
+func preparacionInicial(g graphs.UniGraph) (*mat.Dense, *mat.Dense) {
+	Gbus := zeros(0, 0)
+	Bbus := zeros(0, 0)
+
+	return Gbus, Bbus
 }
-//
+
+// Formación de matrices Gbus y Bbus
+
+// AnalisisCortoCircuito recibe Grafo, ICC y elemento qque lo siente
+func AnalisisCortoCircuito(g graphs.UniGraph, iff float64, elem string) (models.FailResult, models.FailZone, error) {
+	Gbus, Bbus := preparacionInicial(g)
+	if Gbus == nil {
+
+	}
+	if Bbus == nil {
+
+	}
+	return 0, models.FailZone{}, nil
+}
 
 /*
-DT = [];
-for num_foto = 1:10
+Lectura y acondicionamiento inicial de datos
+Formación de matrices Gbus y Bbus
+Formación de matrices Gbus y Bbus de admitancia
+Elaboración y búsqueda en grafo
+Reordenamiento de matrices Gbus y Bbus y extracción de matriz banda
+Factorización compleja LU datos en banda
+Inversa compleja para cálculo Rbus y Xbus
+Diagonales de Rbus y Xbus
+Elaboración de matrices G y B de admitancia
+Elaboración de matrices Gcga y Bcga
+Factorización compleja LU cálculo VoBus
+Solución de VoBus
+Newton Raphson
+Corrección de cálculo de nodo oscilatorio y equivalencia Icc
+Termina proceso
 
-clearvars -except num_foto DT
-close all
-clc
-% H00_Calculo_de_CC_y_flujo_de_cargas_circuitos_CAMARGO
-T0=clock;
 
 
-% ================D A T O S  D E  E N T R A D A    ======================
-num_circ = num_foto;   % NUMERO DE CIRCUITO
-Iff = 2250; %2057;     % CORRIENTE DE FALLA
-% =======================================================================
 
 
 
@@ -200,28 +224,10 @@ while  k_it < 6 & norm_b > 10
     k_it = k_it + 1;
     H04_Newton_Raphson_proceso_iterativo
 end
-%% 
+%%
 
 F05_correccion_voltaje_nodo_oscilatorio_y_calculo_de_CC
 
-Tf=clock;
-dT = Tf - T0;
-
-if dT(6) < 0
-    dT(6) = dT(6)+60;
-    dT(5) = dT(5)-1;
-end
-
-if dT(5) < 0
-    dT(5) = dT(5)+60;
-    dT(4) = dT(4)-1;
-end
-
-if dT(4) < 0
-    dT(4) = dT(4)+60;
-    dT(3) = dT(3)-1;
-end
-fprintf('Tiempo total de ejecucion = %2.0f:%2.0f:%2.0f\n', dT(4:6))
 DT = [DT;dT];
 H06_grafo_vs_distribucion_CC
 
@@ -229,4 +235,3 @@ feval('print',['localizacion_cc_circuito_',num2str(num_foto),'_Iff2250.jpg'],'-d
 
 end
 */
-

@@ -46,31 +46,27 @@ const (
 type CargandoAction struct{}
 
 func (a *CargandoAction) Execute(evContext fsm.EventContext) fsm.EventType {
-	// Se lee archivo de configuración
-	// Se prueba conectar a las fuentes de datos
-	//
-	// Se carga el grafo con la información geográfica de la BD (231)
-	// Como trabajo pendiente, está subir la información a REDIS para acelerar los refrescos de información
-	//
-	// Cargar estados de los elementos de conmutación involucrados
-	//
-	// OJO - Debido a problemas de consistencia de datos al usar la API, provisionalemente se está asociando la información
-	// basado em una tabla que contiene los puntos por señal de cada elemento, se requiere adecuar esto, mapeando
-	// los puntos correspondientes sin este registro.
-	// Falta completar el manejo de pseudopuntos, pero básicamente se incorpora el mismo concepto, un elemento de conmutación
-	// cuyo estado se regista en la UCM y afecta un nodo o una línea.
-	//
-	// Se actualiza el grafo, aplicando algoritmos de coloreo del grafo
-	// Refrescar mapa a través de SQL, actualizando circuito y estado en los elementos
-	// FALTA - Incluir el estado del módulo en el Mapa
-	//
-	// Cualquier problema en la carga, conduce al estado SinConfiguracion
-	// Si termina exitosamente la carga, se procede a cambiar a estado Operando
+/* ESTADO CARGANDO
+- Se lee archivo de configuración
+- Se prueba conectar a las fuentes de datos
+- Se valida el estado del módulo, si está deactivado, se procede a cambiar a estado **FueraLinea**
+- Se carga el grafo con la información geográfica de la BD (231)
+  > **FALTA** - Como trabajo pendiente, está subir la información a REDIS para acelerar los refrescos de información
 
-	//
-	// Se revisan las configuraciones basadas en el archivo automatismo.ucm, que incluye detalle de las conexiones a fuentes de datos
-	// y APIs aplicados en el módulo
-	//
+- Cargar estados de los elementos de conmutación involucrados (224)
+  > **NOTA** - Debido a problemas de consistencia de datos, provisionalemente se está asociando la información basado em una tabla que contiene los puntos por señal de cada elemento, se requiere adecuar esto, mapeando los puntos correspondientes sin este registro.
+
+  > **NOTA** - Raúl tiene APIs que pueden brindar alternativas a esta situación y evitar tener duplicidad de información y configuraciones.
+
+  > **FALTA** - Completar el manejo de pseudopuntos, pero básicamente se incorpora el mismo concepto, un elemento de conmutación cuyo estado se regista en la UCM y afecta un nodo o una línea.
+ 
+- Se actualiza el grafo, aplicando algoritmos de coloreo del grafo
+- Refrescar mapa a través de SQL, actualizando circuito y estado en los elementos
+> **FALTA** - Incluir el estado del módulo de Procesador Topológico en la IHM del Mapa
+ 
+- Cualquier problema en la carga, conduce al estado **SinConfiguracion**
+- Si termina exitosamente la carga, se procede a cambiar a estado **Operando**
+*/
 
 	ihm.Letrero("Cargando configuraciones ...")
 	var err error
@@ -486,7 +482,7 @@ func procesarFalla() {
 
 func lanzarEvento(descripcion string, detalle string, tipo string) error {
 	repo := motorapt.NewUcmEventRegRepo(dbApt)
-	return repo.InsertEventFromtext(descripcion, detalle, "AYPT", tipo)
+	return repo.InsertEventFromTexts(descripcion, detalle, "AYPT", tipo)
 }
 
 const executableID = "MOTORAPT"

@@ -41,7 +41,7 @@ func (e *UcmEventRegRepo) InsertEvent(ev models.UcmEventReg)  error {
 	return err
 }
 
-func (e *UcmEventRegRepo) InsertEventFromtext(descripcion string, detalle string, origen string, tipo string)  error {
+func (e *UcmEventRegRepo) InsertEventFromTexts(descripcion string, detalle string, origen string, tipo string)  error {
 	sb := strings.Builder{}
 	var err error
 

@@ -84,6 +84,16 @@ func (e *VisorTopologyRepo) GetSwLines() ([]*models.SwLine, error) {
 }
 
 
+/*
+SELECT t.id, t.nombre_red, t.nombre, t.tipo_elemento, t.nodo1, t.nodo2, 
+       l.nombre, l.longitud, 
+	   c.r1, c.x1, c.r0, c.x0
+FROM visor. topologia t
+LEFT JOIN visor.linea l ON t.id = l.id
+LEFT JOIN public.catalogo_linea c ON l.id_catalogo = c.id
+WHERE t.tipo_elemento in ('linea', 'linea_asimetrica') 
+*/
+
 func (e *VisorTopologyRepo) GetFullLines() ([]*models.OldExtendedLine, error) {
 	group := []*models.OldExtendedLine{}
 
